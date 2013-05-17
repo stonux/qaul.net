@@ -13,6 +13,7 @@
  *   qaulhelper startolsrd
  *   qaulhelper stopolsrd
  *   qaulhelper setip <IP>
+ *   qaulhelper setdhcp
  */
 
 
@@ -36,6 +37,11 @@ int stop_olsrd (int argc, const char * argv[]);
  * configure static IP for wifi
  */
 int set_ip (int argc, const char * argv[]);
+
+/**
+ * configure DHCP for wifi
+ */
+int set_dhcp (int argc, const char * argv[]);
 
 /**
  * check IP argument
@@ -65,6 +71,10 @@ int main (int argc, const char * argv[])
         {
             set_ip (argc, argv);
         }
+        else if(strncmp(argv[1], "setdhcp", 10) == 0)
+        {
+            set_dhcp (argc, argv);
+        }
         else
             printf("unknown command\n");
     }
@@ -76,6 +86,7 @@ int main (int argc, const char * argv[])
         printf("  qaulhelper startolsrd\n");
         printf("  qaulhelper stopolsrd\n");
         printf("  qaulhelper setip <IP>\n");
+        printf("  qaulhelper setdhcp\n");
         printf("\n");
     }
     
@@ -115,7 +126,7 @@ int stop_olsrd (int argc, const char * argv[])
 
 int set_ip (int argc, const char * argv[])
 {
-    char *s;
+    char s[255];
 
     printf("configure ip\n");
     
@@ -132,6 +143,7 @@ int set_ip (int argc, const char * argv[])
         
         // set ip manually
         sprintf(s,"/usr/sbin/ipconfig set en0 MANUAL %s 255.0.0.0", argv[2]);
+        printf("%s\n",s);
         system(s);
         
         printf("ip configured\n");
@@ -140,6 +152,20 @@ int set_ip (int argc, const char * argv[])
         printf("missing argument\n");
     
 	return 0;    
+}
+
+int set_dhcp (int argc, const char * argv[])
+{
+    printf("set DHCP\n");
+    
+    // set root rights
+    setuid(0);
+        
+    // set dhcp
+    system("/usr/sbin/ipconfig set en0 DHCP");
+    
+    printf("DHCP set\n");    
+	return 0;
 }
 
 int check_ip (const char* ip)
